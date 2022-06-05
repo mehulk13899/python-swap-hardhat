@@ -1,0 +1,173 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+contract NFTMarketplace
+{
+    struct Auction {
+        uint256 auctionStart; 
+        uint256 auctionEnd;
+        uint256 minPrice;
+        uint256 buyNowPrice;
+        uint256 nftHighestBid;
+        address nftHighestBidder;
+        address nftSeller;
+    }
+
+    struct FixedSale
+    {
+       address nftSeller;
+       address nftBuyer;
+       uint256 salePrice;
+       uint256 timeOfBuy;
+       uint256 timeOfSale;
+    }
+
+    mapping(address => mapping(uint256=>FixedSale)) nftContractFixedSale;
+    mapping(address => mapping(uint256=>Auction)) nftContractAuctionSale;
+    mapping(address => mapping(uint256=>uint256)) public nftSaleStatus;
+    mapping(address => mapping(uint256=>bool)) public nftStatus;
+
+    modifier isNftAlreadyInSale(
+        address _nftContractAddress,
+        uint256 _tokenId
+    )
+    {
+        require(!nftStatus[_nftContractAddress][_tokenId],"Nft already in sale");
+        _;
+    }
+
+    modifier isNftInSale(
+        address _nftContractAddress,
+        uint256 _tokenId
+    )
+    {
+        require(nftStatus[_nftContractAddress][_tokenId],"Nft not in sale");
+        _;
+    }
+
+    modifier isSaleStartByOwner(
+        address _nftContractAddress,
+        uint256 _tokenId
+    )
+    {
+        require(msg.sender == IERC721(_nftContractAddress).ownerOf(_tokenId),"You are not nft owner");
+        _;
+    }
+
+    modifier isSaleCancelByOwner(
+        address _nftContractAddress,
+        uint256 _tokenId
+    )
+    {
+        require(msg.sender ==nftContractFixedSale[_nftContractAddress][_tokenId].nftSeller,"You are not nft owner");
+        _;
+    }
+    
+    modifier isContractApprove(
+        address _nftContractAddress,
+        uint256 _tokenId
+    )
+    {
+        require(msg.sender == IERC721(_nftContractAddress).getApproved(_tokenId),"Nft not approved to contract");
+        _;
+    }
+
+    modifier buyPriceMeetSalePrice(
+        address _nftContractAddress,
+        uint256 _tokenId,
+        uint256 _buyPrice
+    )
+    {
+        require(_buyPrice>=nftContractFixedSale[_nftContractAddress][_tokenId].salePrice,"buy Price not enough");
+        _;
+    }
+
+
+    function nftFixedSale(
+        address _nftContractAddress,
+        uint256 _tokenId,
+        uint256 _salePrice
+    ) external 
+      isSaleStartByOwner(_nftContractAddress,_tokenId)
+      isNftAlreadyInSale(_nftContractAddress, _tokenId)
+      isContractApprove(_nftContractAddress, _tokenId)
+    { 
+
+        nftContractFixedSale[_nftContractAddress][_tokenId] = FixedSale(msg.sender,address(0),_salePrice,0,block.timestamp);
+        
+        nftStatus[_nftContractAddress][_tokenId] = true; 
+        nftSaleStatus[_nftContractAddress][_tokenId] = 1;
+
+        IERC721(_nftContractAddress).safeTransferFrom(msg.sender,address(this),_tokenId);                  
+    }
+
+    function cancelfixedsale(
+        address _nftContractAddress,
+        uint256 _tokenId
+    ) external
+      isSaleCancelByOwner(_nftContractAddress, _tokenId)
+      isNftInSale(_nftContractAddress, _tokenId)
+    {
+        IERC721(_nftContractAddress).safeTransferFrom(address(this),msg.sender,_tokenId);
+
+        nftStatus[_nftContractAddress][_tokenId] = false; 
+        nftSaleStatus[_nftContractAddress][_tokenId] = 0;
+
+        nftContractFixedSale[_nftContractAddress][_tokenId] = FixedSale(address(0),address(0),0,0,0);  
+    }
+
+    function buyFromFixedSale(
+        address _nftContractAddress,
+        uint256 _tokenId
+    ) external payable
+      isNftInSale(_nftContractAddress, _tokenId)
+      buyPriceMeetSalePrice(_nftContractAddress, _tokenId, msg.value)
+    {
+        IERC721(_nftContractAddress).safeTransferFrom(address(this),msg.sender,_tokenId);
+
+        nftStatus[_nftContractAddress][_tokenId] = false;
+        nftSaleStatus[_nftContractAddress][_tokenId] = 0;
+
+        nftContractFixedSale[_nftContractAddress][_tokenId].timeOfBuy = block.timestamp;
+        nftContractFixedSale[_nftContractAddress][_tokenId].nftBuyer  = msg.sender;
+
+        _amountTransfer(nftContractFixedSale[_nftContractAddress][_tokenId].nftSeller,
+                          nftContractFixedSale[_nftContractAddress][_tokenId].salePrice);
+    }
+ 
+    function nftAuctionSale(
+        address _nftContractAddress,
+        uint256 _tokenId,
+        uint256 _auctionStart,
+        uint256 _auctionEnd,
+        uint256 _minPrice,
+        uint256 _buyNowPrice
+    ) external
+      isSaleStartByOwner(_nftContractAddress,_tokenId)
+      isNftAlreadyInSale(_nftContractAddress, _tokenId)
+      isContractApprove(_nftContractAddress, _tokenId)
+    {
+        nftContractAuctionSale[_nftContractAddress][_tokenId] = Auction(_auctionStart,_auctionEnd,
+                                    _minPrice,_buyNowPrice,_minPrice,address(0),msg.sender);  
+
+        nftStatus[_nftContractAddress][_tokenId] = true; 
+        nftSaleStatus[_nftContractAddress][_tokenId] = 2;
+
+        IERC721(_nftContractAddress).safeTransferFrom(msg.sender,address(this),_tokenId);  
+    }
+    
+    function 
+
+    function _amountTransfer(
+        address _nftOwner,
+        uint256 _buyAmount
+    ) internal
+    {
+        (bool success,)  = _nftOwner.call{value: _buyAmount}("");
+        require(success, "refund failed");
+    }
+}
