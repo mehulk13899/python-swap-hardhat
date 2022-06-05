@@ -1,6 +1,10 @@
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
+require("@nomiclabs/hardhat-truffle5");
+const chai = require('chai')
+const ethereumWaffle = require('ethereum-waffle')
 
+chai.use(ethereumWaffle.solidity);
 let secret = require("./secreate")
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
