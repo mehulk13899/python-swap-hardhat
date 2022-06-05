@@ -19,5 +19,12 @@ npx hardhat compile
 
 
 Step2:
- npx hardhat run scripts/test.js
+npx hardhat run scripts/test.js
 npx hardhat run scripts/token.js --network matic
+
+
+Deploy 1:
+
+Token deployed to: 0x25d01BD27dC91aD86b95790F84a0255a2906F466
+MyKYC deployed to: 0x77e4f648892521eC315A39a480b3D982B5A3a7E4
+Crowdsale deployed to: 0x462ee74F5671224a74205ad7BF1c61751AaeB5eA

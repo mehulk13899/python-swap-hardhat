@@ -12,21 +12,21 @@ async function main() {
   // If this script is run directly using `node` you may want to call compile
   // manually to make sure everything is compiled
   // await hre.run('compile');
-   
-  var totalSupply = 1 * (10**18);
+
+  var totalSupply = 1 * (10 ** 4) * (10 ** 18);
 
   const Token = await hre.ethers.getContractFactory("ICO");
-  const token = await Token.deploy("0x0B6319DbcBB51f138101A8BA8578Ff7674abc653",totalSupply);
+  const token = await Token.deploy("0x0B6319DbcBB51f138101A8BA8578Ff7674abc653", totalSupply);
 
   await token.deployed();
 
-  
+
   // We get the contract to deploy
-  
+
   var tokenValue = 10;
 
   const ICO = await hre.ethers.getContractFactory("ICO");
-  const ico = await ICO.deploy(tokenValue,"0x0B6319DbcBB51f138101A8BA8578Ff7674abc653",token.address);
+  const ico = await ICO.deploy(tokenValue, "0x0B6319DbcBB51f138101A8BA8578Ff7674abc653", token.address);
 
   await ico.deployed();
 
