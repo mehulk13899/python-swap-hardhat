@@ -1,3 +1,6 @@
+const { expect } = require('chai');
+const { ethers, web3 } = require('hardhat');
+const { solidity } = require("ethereum-waffle");
 
 const GLDToken = artifacts.require('GLDToken');
 const KycContract = artifacts.require("KycContract");
@@ -6,9 +9,9 @@ const MyTokenSale = artifacts.require("MyTokenSale");
 contract('GLDToken', accounts => {
 
     const BigNumber = web3.BigNumber;
-    const BN = web3.utils.BN;
 
     require('chai')
+        .use(solidity)
         .use(require('chai-bignumber')(BigNumber))
         .should();
 
@@ -66,17 +69,9 @@ contract('GLDToken', accounts => {
 
     describe('Transfer Ownership', function () {
         it('tracks the rate', async function () {
-
-            await this.token.transfer(this.myTokenSale.address,
-                web3.utils.toWei('1000', 'ether'));
-
-            let userBalance = await this.token.balanceOf(accounts[0])
-            userBalance.should.be.bignumber.equal(web3.utils.toWei('1000', 'ether'));
-
-
-            console.log("user balance is ", userBalance)
-            let myTokenSaleBalance = await this.token.balanceOf(this.myTokenSale.address)
-            console.log("myTokenSale contract balance is ", myTokenSaleBalance)
+            await this.token.transfer(accounts[1], web3.utils.toWei('1', 'ether'));
+            const data = await this.token.balanceOf(accounts[1]);
+            expect(data.toString()).to.equal(web3.utils.toWei('1', 'ether'));
         });
     });
 
