@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
@@ -19,7 +20,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  * the methods to add functionality. Consider using 'super' where appropriate to concatenate
  * behavior.
  */
-contract Crowdsale is Context, ReentrancyGuard {
+contract Crowdsale is Context, ReentrancyGuard,Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -101,6 +102,14 @@ contract Crowdsale is Context, ReentrancyGuard {
      */
     function weiRaised() public view returns (uint256) {
         return _weiRaised;
+    }
+
+    /**
+     * @return the number of token units a buyer gets per wei.
+     */
+    function changerate(uint256 rate1) public  onlyOwner returns (uint256) {
+        _rate = rate1;
+        return _rate;
     }
 
     /**

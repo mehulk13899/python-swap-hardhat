@@ -75,4 +75,17 @@ contract('Python', accounts => {
         });
     });
 
+
+    describe('Change Rate', function () {
+        it('Get Rate', async function () {
+            const rate = await this.myTokenSale.rate();
+            expect(rate.toString()).to.equal(`${_rate}`);
+        });
+        it('Change Rate', async function () {
+            await this.myTokenSale.changerate(_rate + 10);
+            const rate = await this.myTokenSale.rate();
+            expect(parseFloat(rate.toString())).to.equal(_rate + 10);
+        });
+    });
+
 });
