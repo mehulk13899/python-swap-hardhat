@@ -2,11 +2,11 @@ const { expect } = require('chai');
 const { ethers, web3 } = require('hardhat');
 const { solidity } = require("ethereum-waffle");
 
-const GLDToken = artifacts.require('GLDToken');
+const Python = artifacts.require('Python');
 const KycContract = artifacts.require("KycContract");
 const MyTokenSale = artifacts.require("MyTokenSale");
 
-contract('GLDToken', accounts => {
+contract('Python', accounts => {
 
     const BigNumber = web3.BigNumber;
 
@@ -15,13 +15,13 @@ contract('GLDToken', accounts => {
         .use(require('chai-bignumber')(BigNumber))
         .should();
 
-    const _name = 'GLDToken';
-    const _symbol = 'MKT';
+    const _name = 'Python';
+    const _symbol = 'PCH';
     const _decimals = 18;
     const _rate = 100;
 
     beforeEach(async function () {
-        this.token = await GLDToken.new(_name, _symbol);
+        this.token = await Python.new(_name, _symbol);
         this.kyc_contract = await KycContract.new();
         this.myTokenSale = await MyTokenSale.new(_rate, accounts[0],
             this.token.address, this.kyc_contract.address);

@@ -25,6 +25,6 @@ npx hardhat run scripts/token.js --network matic
 
 Deploy 1:
 
-Token deployed to: 0x25d01BD27dC91aD86b95790F84a0255a2906F466
-MyKYC deployed to: 0x77e4f648892521eC315A39a480b3D982B5A3a7E4
-Crowdsale deployed to: 0x462ee74F5671224a74205ad7BF1c61751AaeB5eA
+Token deployed to: 0xECA47bf5A4Cff55a70e2bbB6CE55c1ccEe3E278a
+MyKYC deployed to: 0xfCd1A35C449b8B63ea7f5fA751aD7aabca85007B
+Crowdsale deployed to: 0xEDe8f980AaA1DD0f2830281BC6a83cDc5c373491

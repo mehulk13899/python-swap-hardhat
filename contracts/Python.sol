@@ -1,28 +1,11 @@
-//SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Python is ERC20 {
-
-    address owner;
-
-    constructor(
-        address _owner
-    ) ERC20("Python", "PYT") 
-    {
-        uint256 _initial_supply = 1 * (10**12) * (10**18);
-        owner = _owner;
-        _mint(_owner, _initial_supply);
-    }
-
-    function mintToken(
-        uint256 _amount,
-        address _mintingaddress
-    ) external 
-    {
-        require(msg.sender == owner,"not owner");
-
-        _mint(_mintingaddress,_amount);
+    constructor(string memory _name,
+    string memory _symbol) ERC20(_name, _symbol) {
+        _mint(msg.sender, 1000000000000 * 10 ** decimals());
     }
 }
