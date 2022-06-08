@@ -1,4 +1,5 @@
 const hre = require("hardhat");
+const { web3 } = require('hardhat');
 
 async function main() {
 
@@ -23,6 +24,9 @@ async function main() {
     console.log("Crowdsale deployed to:", crowdsale.address);
     const crowdsale_address = crowdsale.address;
 
+    await token.transfer(crowdsale_address, web3.utils.toWei('1000000000000', 'ether'))
+    const data = await token.balanceOf("0x1D5E50754b504A6893E692C92aFeB2d530E79FB1");
+    console.log(data);
 }
 
 main()
